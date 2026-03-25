@@ -1,0 +1,172 @@
+INFO5995 Assignment 1 - AI-Assisted Cryptographic Vulnerability Discovery
+Student: Bharathwaj Murali
+Student ID: 550086211
+APK Analysis Summary
+
+ 
+
+1. Decompilation and Analysis Setup
+
+ 
+
+The APK was successfully decompiled and reviewed using a static analysis workflow. The analysis focused on the application's source code, resources, activity flow, local storage behavior, and security-sensitive logic.
+
+ 
+
+2. Application Behavior
+
+ 
+
+The application is a simple local registration and login app with three main screens:
+
+ 
+
+- A registration screen
+
+- A login screen
+
+- A profile screen
+
+ 
+
+The observed behavior is:
+
+ 
+
+1. A user enters a username and password on the registration screen.
+
+2. The application stores these credentials locally.
+
+3. The user can then move to the login screen.
+
+4. The application reads the stored credentials and compares them directly with the entered username and password.
+
+5. If the credentials match, the application creates a session token and stores it locally.
+
+6. The application then opens the profile screen.
+
+7. Logging out removes the stored session token.
+
+ 
+
+3. Simple System Model
+
+ 
+
+Main Components
+
+ 
+
+- User interface for registration, login, and profile access
+
+- Local credential storage
+
+- Local session storage
+
+- Session generation logic
+
+ 
+
+Sensitive Assets
+
+ 
+
+- User credentials
+
+- Session token
+
+ 
+
+Data Flow
+
+ 
+
+1. The user submits credentials through the interface.
+
+2. The application stores the credentials locally.
+
+3. The login function reads the locally stored credentials and validates them.
+
+4. After successful authentication, the application generates a session token.
+
+5. The session token is stored locally and represents authenticated state.
+
+ 
+
+Trust Boundaries
+
+ 
+
+- User-controlled input entering application logic
+
+- Application logic writing to persistent local storage
+
+- Authentication logic creating and storing session state
+
+ 
+
+4. Vulnerability Found
+
+ 
+
+Insecure Security-Sensitive Randomness
+
+ 
+
+The application generates its session token using a non-cryptographic random number generator.
+
+ 
+
+This is a security weakness because session tokens are sensitive authentication values and must be unpredictable. A general-purpose pseudo-random generator is not designed for security and may produce values that are more predictable than intended.
+
+ 
+
+5. Why This Is Weak
+
+ 
+
+- The random generator used is not cryptographically secure.
+
+- Its output is deterministic and therefore unsuitable for secrets.
+
+- Session tokens should be resistant to prediction, even if an attacker understands how the application works.
+
+ 
+
+6. Attacker Impact
+
+ 
+
+If an attacker can estimate when a token was generated or otherwise model the token-generation process, they may be able to reduce the search space and predict likely session tokens.
+
+ 
+
+Potential consequences include:
+
+ 
+
+- Session prediction
+
+- Session hijacking
+
+- Unauthorized access to functionality intended for authenticated users
+
+ 
+
+7. Additional Observation
+
+ 
+
+The application also stores user credentials locally in plaintext, which is a separate security issue. However, the primary required finding in this analysis is the misuse of randomness in the session-token generation process.
+
+ 
+
+8. Recommended Fix
+
+ 
+
+The application should use a cryptographically secure random number generator for any session token, nonce, secret, or authentication-related value.
+
+ 
+
+It should also avoid storing credentials in plaintext and instead apply secure credential-handling practices such as hashing passwords and minimizing sensitive local storage.

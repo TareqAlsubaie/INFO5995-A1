@@ -1,0 +1,402 @@
+INFO5995 Assignment 1 AI Log
+Name: Shyam Karthick Venkatraman Balakrishnan
+SID: 550224271
+
+This AI log is written as prompt/output summaries based on the assignment specification, rubric, presentation, and final report findings for a1_case1.apk. Summaries are used because the assignment spec explicitly allows prompt-response summaries in the AI log. All AI-assisted suggestions were manually validated against the decompiled APK, presentation evidence, and final report before inclusion.
+
+ 
+
+Entry 1: Understanding the assignment scope
+ 
+
+Input prompt
+
+ 
+
+Read this assignment brief and tell me exactly what is required for INFO5995 Assignment 1, especially what kind of vulnerability is in scope, what files must be submitted, and what evidence is needed for the AI log.
+
+ 
+
+Output summary
+
+ 
+
+The AI summarised that the assignment is focused only on vulnerabilities related to randomness and cryptography in the provided APK. It highlighted that the strongest submission should include a clear system/threat model, one well-validated vulnerability, a concrete fix, a presentation, and an AI log. It also noted that the required submission items are report.pdf, ai-log/, pocs/, presentation.mp4, and activity-log.pdf.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used this to narrow the investigation to randomness/crypto issues only and avoided unrelated Android vulnerabilities. We later checked the official spec and rubric directly to confirm that randomness/cryptographic misuse was the only marked vulnerability scope.
+
+ 
+
+Entry 2: Choosing an APK analysis workflow
+ 
+
+Input prompt
+
+ 
+
+I need to inspect an Android APK for security analysis. Suggest a practical beginner-friendly workflow and tools to decompile the APK, inspect the manifest, and locate login-related classes.
+
+ 
+
+Output summary
+
+ 
+
+The AI suggested using tools such as JADX to inspect the decompiled Java/Kotlin code and Android manifest, and optionally APKTool for lower-level resource inspection. It recommended starting by identifying the package name, launcher activity, manifest entries, and classes related to login, registration, session handling, or stored credentials.
+
+ 
+
+How we used/validated it
+
+ 
+
+We followed this workflow during static analysis. The recommendation was reasonable and consistent with common APK auditing practice. We validated the usefulness of the workflow by successfully tracing the app logic across MainActivity, Login, and Profile, which also matches our presentation and report.
+
+ 
+
+Entry 3: Defining what an APK is and why decompilation is needed
+ 
+
+Input prompt
+
+ 
+
+Help me explain in simple academic language what an APK is and why decompilation is necessary when auditing an Android app for security. Keep it short enough for a 2-page report.
+
+ 
+
+Output summary
+
+ 
+
+The AI explained that an APK is the packaged installable format for Android apps and normally contains compiled code and app resources rather than easy-to-read source files. It said decompilation is needed because security review depends on recovering readable logic such as manifest settings, activities, authentication flow, and storage behaviour.
+
+ 
+
+How we used/validated it
+
+ 
+
+We rewrote the explanation in our own words for the report introduction. The final wording was manually checked so it matched the app analysis task and did not overstate what decompilation can recover.
+
+ 
+
+Entry 4: Building the system model
+ 
+
+Input prompt
+
+ 
+
+Based on an Android app with a main screen, a login screen, a profile screen, local credential handling, and a session token stored in SharedPreferences, help me turn that into a simple system model with assets, components, and data flows.
+
+ 
+
+Output summary
+
+ 
+
+The AI proposed a model with MainActivity for credential input, Login for verification and token generation, SharedPreferences for local session state, and Profile for post-login access and logout. It identified protected assets such as credentials, the session token, and authentication state, and suggested describing the data flow from user input to credential verification to token generation and token storage.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used that structure to prepare both the presentation slide and the report system/threat model section. We validated it manually against the decompiled app behaviour described in our final report and presentation.
+
+ 
+
+Entry 5: Identifying candidate randomness-related values
+ 
+
+Input prompt
+
+ 
+
+When auditing a decompiled APK for randomness or crypto misuse, what values should I look for and how should I classify them so I can decide which ones are security-sensitive?
+
+ 
+
+Output summary
+
+ 
+
+The AI suggested searching for tokens, session IDs, verification codes, reset codes, keys, nonces, salts, random strings, and helper methods using APIs such as java.util.Random or SecureRandom. It recommended recording the class and method location, the generator used, and the security role of each value, such as UI-only value, identifier, token, or authentication state.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used this as a checklist while tracing the app logic. That process led us to generateSessionToken() in the Login class as the key randomness-related method. We confirmed that the generated token was not cosmetic because it was used as stored session state.
+
+ 
+
+Entry 6: Assessing the discovered token generation
+ 
+
+Input prompt
+
+ 
+
+In a decompiled Android app, I found a method called generateSessionToken() in the Login class. It builds a 16-character alphanumeric token using java.util.Random and stores it in SharedPreferences as the logged-in session value. Is this a valid security vulnerability for a randomness/crypto assignment? Explain why or why not.
+
+ 
+
+Output summary
+
+ 
+
+The AI said this is a valid vulnerability because java.util.Random is a general-purpose pseudo-random generator and not appropriate for security-sensitive values such as authentication tokens. It explained that the security issue is not that the token merely "looks random," but that the app assigns a security role to a value generated by a predictable, non-cryptographic API.
+
+ 
+
+How we used/validated it
+
+ 
+
+We manually checked the code path and confirmed the token’s security role in the authentication flow. This became the core vulnerability in both the report and presentation: insecure session token generation using weak randomness.
+
+ 
+
+Entry 7: Turning the weakness into a realistic threat model
+ 
+
+Input prompt
+
+ 
+
+Help me write a realistic attacker model for this case. The attacker can reverse-engineer the APK, understand the token generation logic, and may have local access to app storage on a rooted device or through privileged malware. What concrete attack scenario follows from that?
+
+ 
+
+Output summary
+
+ 
+
+The AI suggested a rooted-device or privileged-local attacker who can inspect the app, learn the token format and generation logic, and read or modify locally stored session data. It proposed an attack scenario where the attacker decompiles the APK, studies the token creation method, gains local storage access, and manipulates or injects session state to impersonate an authenticated user.
+
+ 
+
+How we used/validated it
+
+ 
+
+We adopted this attacker model because it matched the locally stored session design of the app and did not rely on unrealistic remote capabilities. We used it in the system/threat model, vulnerability explanation, and attack scenario sections.
+
+ 
+
+Entry 8: Asking for a technically sound fix
+ 
+
+Input prompt
+
+ 
+
+What is the most appropriate fix if an Android app uses java.util.Random to generate a session token that represents authenticated state? Please explain both the code-level fix and any higher-level design advice.
+
+ 
+
+Output summary
+
+ 
+
+The AI recommended replacing java.util.Random with SecureRandom so the token is generated with cryptographically strong unpredictability. It also warned that client-generated and client-trusted session state is a weak design pattern, so a stronger design would avoid trusting a locally generated token as the sole basis for authentication state.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used this directly in the mitigation section of the report and slide deck. We also cross-checked the fix against standard Java/Android security guidance before including it.
+
+ 
+
+Entry 9: Report drafting support
+ 
+
+Input prompt
+
+ 
+
+Help me turn these validated findings into a 2-page USENIX-style security report with sections for introduction, system/threat model, how the vulnerability was found, vulnerability details, and fix/mitigation. Keep the writing concise and academic.
+
+ 
+
+Output summary
+
+ 
+
+The AI produced a short report structure and draft prose aligned with the required sections. It kept the report centred on one vulnerability, the threat model, the discovery method, and the mitigation rather than listing unrelated issues.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used the draft only as writing support. Every technical claim was checked back against the decompiled app logic, our slides, and the final report before submission. Unsupported statements were removed during revision.
+
+ 
+
+Entry 10: Presentation support
+ 
+
+Input prompt
+
+ 
+
+Help me compress this report into a 5-minute presentation with one slide on app overview/system model, one on threat model/discovery method, one on the vulnerability and attack scenario, and one on the fix and takeaway.
+
+ 
+
+Output summary
+
+ 
+
+The AI suggested a compact presentation flow that mirrors the rubric: brief app overview, realistic threat model, clear explanation of the discovered randomness vulnerability, and a technically sound fix. It also encouraged keeping the message focused on one validated issue and one strong lesson.
+
+ 
+
+How we used/validated it
+
+ 
+
+We used this structure to organise the presentation. The final slides match that flow: app overview/system model, threat model/discovery method, vulnerability/attack scenario, and fix/key takeaway.
+
+ 
+
+Entry 11: Rubric-driven mock Q&A rehearsal
+ 
+
+Input prompt
+
+ 
+
+Act as an INFO5995 tutor using this rubric. Ask me challenging follow-up questions about the system model, attacker capabilities, why java.util.Random is unsuitable here, why the vulnerability is in scope, and why SecureRandom is the correct fix. Then give brief feedback on weak spots in my answers.
+
+ 
+
+Output summary
+
+ 
+
+The AI generated a rubric-style mock Q&A focused on whether the system model clearly links to the vulnerability, whether the attacker model is realistic, whether the token truly has a security role, and whether the proposed fix actually addresses the risk. It also highlighted the need to defend why the issue is about authentication integrity rather than just "bad coding style."
+
+ 
+
+How we used/validated it
+
+ 
+
+We used this rehearsal to tighten our explanations for the tutorial Q&A. In particular, we improved how we justify the token’s security role, the local attacker assumptions, and why the mitigation is both concrete and technically sound.
+
+ 
+
+Entry 12: Final quality-control prompt
+ 
+
+Input prompt
+
+ 
+
+Review this final vulnerability summary and tell me if there are any unsupported claims, overstatements, or places where I should be more careful to say "could" instead of "will".
+
+ 
+
+Output summary
+
+ 
+
+The AI advised being careful not to overclaim full remote compromise or guaranteed exploitation. It suggested framing the impact as a realistic risk of prediction, reproduction, or manipulation of locally trusted session state under the stated attacker model.
+
+ 
+
+How we used/validated it
+
+ 
+
+We revised the final report and speaking notes to keep claims proportionate and evidence-based. This helped make the final submission more defensible during presentation and Q&A.
+
+ 
+
+Short copy-paste version
+ 
+
+If a shorter AI log is needed, the following one-line prompt/output summaries can be pasted directly:
+
+ 
+
+1. Prompt: What is required for INFO5995 Assignment 1 and what vulnerability scope is marked?
+
+  Output: Focus on one validated randomness/cryptography vulnerability in the provided APK, plus system/threat model, fix, report, presentation, AI log, and activity log.
+
+ 
+
+2. Prompt: What tools and workflow should I use to inspect an Android APK?
+
+  Output: Use JADX/APKTool-style workflow to inspect the manifest, launcher activity, and authentication-related classes.
+
+ 
+
+3. Prompt: Help me explain what an APK is and why decompilation is needed for auditing.
+
+  Output: An APK is the installable Android package; decompilation is needed to recover readable logic for manifest, activities, storage, and authentication review.
+
+ 
+
+4. Prompt: Help me model this app’s components, assets, and flows.
+
+  Output: MainActivity handles credential input, Login verifies credentials and creates the token, SharedPreferences stores session state, and Profile is the authenticated area.
+
+ 
+
+5. Prompt: What randomness-related values should I search for in a decompiled APK?
+
+  Output: Search for tokens, codes, IDs, keys, and helper methods using Random or SecureRandom, then classify each value by security role.
+
+ 
+
+6. Prompt: Is generateSessionToken() using java.util.Random for a stored session token a valid vulnerability?
+
+  Output: Yes; java.util.Random is not cryptographically secure, and a session token is a security-sensitive value tied to authentication state.
+
+ 
+
+7. Prompt: What is a realistic attacker model for this weakness?
+
+  Output: A rooted-device or privileged-local attacker can reverse-engineer the APK, inspect token logic, and read or modify local session storage.
+
+ 
+
+8. Prompt: What fix should be recommended?
+
+  Output: Replace java.util.Random with SecureRandom and avoid trusting a client-generated local token as the sole basis for authenticated state.
+
+ 
+
+9. Prompt: Help me turn this into a short academic report.
+
+  Output: Keep the report focused on the introduction, system/threat model, discovery method, vulnerability details, and fix/mitigation.
+
+ 
+
+1. Prompt: Ask me rubric-driven mock Q&A questions for the tutorial.
+   Output: Defend the system model, attacker realism, why the token is security-sensitive, and why SecureRandom is the technically correct fix.
+
+ 
+
+Final note
+ 
+
+This AI log is consistent with the final presentation and report finding: the main vulnerability in a1_case1.apk is insecure session token generation in Login.generateSessionToken() using java.util.Random, with the token stored in SharedPreferences as authenticated session state.

@@ -1,0 +1,129 @@
+AI Usage Log
+
+INFO5995 Assignment 1 - AI-Assisted Cryptographic Vulnerability Discovery
+Student: Nishanth Shanmugasundaram
+Student ID: 550258933
+APK Analysed: a1_case1.apk
+
+1. Purpose of AI Use
+
+I used AI as a support tool during the assignment to help with:
+
+• understanding the updated assignment specification and rubric
+• selecting and setting up APK analysis tools
+• interpreting decompiled Android code
+• narrowing the report to one vulnerability that matched the updated scope
+• improving the threat model and attack explanation
+• drafting and checking the mitigation section
+• preparing supporting submission material
+AI was not used as a substitute for verification. All technical conclusions included in the report were manually checked against the decompiled APK, extracted manifest, and assignment requirements.
+
+2. Summary of AI-Assisted Work
+
+A. Understanding the assignment requirements
+
+I used AI to compare the updated specification and rubric against the old report. This helped me identify that the report should focus on one core vulnerability only, and that the chosen issue must be related to randomness or cryptographic misuse.
+
+How I validated this:
+I manually checked the updated assignment specification and updated rubric and confirmed that Assignment 1 only awards marks for randomness/cryptography vulnerabilities.
+
+B. APK analysis workflow support
+
+AI helped me identify a practical workflow for Android APK analysis, including use of decompilation tools and manifest/code inspection.
+
+This support included:
+
+• choosing a decompilation approach
+• extracting the APK contents
+• locating the package name, activities, manifest, and relevant Java classes
+• identifying where security-sensitive values were generated or stored
+How I validated this:
+I checked the extracted APK contents and decompiled source files directly in the workspace.
+
+C. Vulnerability identification
+
+AI helped me inspect the decompiled authentication flow across:
+
+• MainActivity
+• Login
+• Profile
+During this process, I used AI support to evaluate whether the application’s session token generation logic was appropriate for a security-sensitive value. The strongest issue identified was the use of java.util.Random in Login.generateSessionToken() to create a session token.
+
+How I validated this:
+I manually reviewed the decompiled Login.java file and confirmed:
+
+• the existence of generateSessionToken()
+• the use of java.util.Random
+• that the generated token is stored in SharedPreferences
+• that the token has a session/authentication role
+D. Threat model and attack scenario refinement
+
+AI was used to improve the system model, attacker model, and attack scenario so they were more clearly aligned with the rubric.
+
+This included:
+
+• clarifying the relevant protected assets
+• identifying a realistic attacker
+• defining attacker capabilities
+• writing a step-by-step attack scenario linked directly to the predictable token issue
+How I validated this:
+I checked that the threat model matched the actual application behaviour and that the attack scenario was consistent with the decompiled code and local-storage design.
+
+E. Mitigation support
+
+AI was used to draft a secure code-level mitigation by replacing java.util.Random with SecureRandom.
+
+How I validated this:
+I checked that the proposed fix:
+
+• preserved the expected token format
+• remained compatible with the app’s current String-based session storage logic
+• directly addressed the identified randomness weakness
+I also verified the mitigation logic with a small Java test harness to confirm that it generated valid 16-character alphanumeric tokens successfully.
+
+F. Report revision support
+
+AI was used to help rewrite the old report so that it aligned with the updated requirements. This included:
+
+• removing out-of-scope emphasis on unrelated vulnerabilities
+• focusing the report on one randomness-related issue
+• improving clarity in the introduction, system/threat model, vulnerability explanation, attack scenario, and mitigation sections
+How I validated this:
+I checked the revised content against the updated rubric and specification to ensure it matched the required scope and report structure.
+
+3. Personal Validation Statement
+
+I manually verified the following technical points before using them in my report:
+
+• the package name and manifest details
+• the relevant classes: MainActivity, Login, and Profile
+• the vulnerable method: Login.generateSessionToken()
+• the use of java.util.Random
+• the storage of the session token in SharedPreferences
+• the compatibility of the SecureRandom replacement with the current code structure
+• that the updated rubric only rewards randomness/cryptography vulnerabilities for Assignment 1
+Where runtime verification was not possible, I explicitly treated that as a limitation rather than assuming correctness.
+
+4. Key AI-Assisted Outcomes Used in the Final Submission
+
+The following outputs influenced my final submission:
+
+• identification of the correct in-scope vulnerability
+• refinement of the threat model
+• refinement of the attack scenario
+• mitigation explanation using SecureRandom
+• improved report wording aligned with the updated rubric
+• preparation of a structured AI usage log
+5. Tools and Documentation Used
+
+The following tools and references were used during the assignment:
+
+1. Oracle Java Documentation - SecureRandom
+2. JADX decompiler documentation / JADX tooling
+3. Android platform-tools / ADB documentation
+4. Apache PDFBox documentation
+5. Updated assignment specification PDF
+6. Updated assignment rubric PDF
+6. Responsible Use of AI
+
+AI was used to support analysis, explanation, and documentation. I understand that responsibility for the final submitted work remains mine. I manually checked technical claims before including them in the report, and I did not rely on AI outputs without verification.

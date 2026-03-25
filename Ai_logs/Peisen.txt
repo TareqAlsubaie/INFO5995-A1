@@ -1,0 +1,227 @@
+INFO5995 Assignment 1 - AI-Assisted Cryptographic Vulnerability Discovery
+Student: Peisen Zheng
+Student ID: 540660793
+
+ 
+
+Purpose of AI Use
+
+ 
+
+This file records how AI tools were used to support the analysis of `a1_case1.apk` for INFO5995 Assignment 1. AI was used to support workflow setup, static-analysis planning, explanation drafting, slide planning, and mock Q&A preparation. All technical claims included in the final submission were manually checked against the decompiled APK, the assignment specification, and the rubric.
+
+ 
+
+AI Tools Used
+
+ 
+
+- ChatGPT / Codex for workflow guidance, drafting support, and document preparation.
+
+- AI support was used for prompt-response summaries rather than direct copy-paste into the final report.
+
+ 
+
+High-Level Summary of AI-Assisted Workflow
+
+ 
+
+1. Decompilation and workflow setup
+
+- AI was asked which tools are commonly used to inspect an Android APK and how to set up a basic workflow for static analysis.
+
+- AI suggested using tools such as `jadx` and APK decompilation workflows to inspect the manifest, activities, and Java code.
+
+- The group then manually decompiled the APK and inspected authentication-related classes in the decompiled source.
+
+ 
+
+2. App understanding and system model support
+
+- AI was asked how to describe an Android app’s system model in a concise security-analysis format.
+
+- AI suggested focusing on components, assets, data flows, attacker assumptions, and trust boundaries.
+
+- The group used that structure to map `MainActivity`, `Login`, `Profile`, local file storage, and `SharedPreferences`.
+
+- The final system model was based on manual reading of the decompiled app logic, not on AI guesses.
+
+ 
+
+3. Vulnerability discovery support
+
+- AI was asked how to systematically search for randomness-related issues in an unfamiliar codebase.
+
+- AI suggested searching for values treated as random numbers, tokens, session values, identifiers, codes, or keys, and then checking the API used to generate them.
+
+- Based on this guidance, the group manually searched the decompiled code and located `Login.generateSessionToken()`.
+
+- The group then manually verified that the token was generated using `java.util.Random`.
+
+ 
+
+4. Scope checking against the assignment
+
+- AI was asked to help interpret the assignment scope and rubric.
+
+- AI highlighted that Assignment 1 is marked only on randomness and cryptography issues in the provided APK.
+
+- During drafting, broader issues such as plaintext credential storage were discussed, but the group manually checked the specification again and kept the final presentation focus on the session-token randomness issue because it is the clearest in-scope vulnerability.
+
+ 
+
+5. Vulnerability explanation and mitigation support
+
+- AI was asked why `java.util.Random` is unsuitable for session tokens and what a sound mitigation would look like.
+
+- AI suggested that session tokens are security-sensitive values and should be generated using a cryptographically strong API such as `SecureRandom`.
+
+- The group manually checked that the selected mitigation matched the vulnerability and was technically appropriate for the app design.
+
+ 
+
+6. Presentation and script support
+
+- AI was used to help structure the 5-minute presentation so it clearly covered the system model, threat model, vulnerability, attack scenario, and mitigation.
+
+- AI was also used to help draft a speaking script and slide outline that matched the rubric.
+
+- The group manually revised these outputs to fit the actual code evidence and the speaking-time constraints.
+
+ 
+
+7. Activity log and document-format support
+
+- AI was used to help format the activity log, generate a contribution matrix structure, and convert markdown content into `.docx` and `.pdf` formats for submission support.
+
+- The group manually checked names, contribution wording, and consistency across files before finalising them.
+
+ 
+
+Representative Prompt Summary
+
+ 
+
+Prompt Theme A: Tooling and setup
+
+- Example request summary: “What tools should we use to inspect an Android APK and what should we look for first?”
+
+- Useful output: suggested decompilation workflow, manifest inspection, and tracing login-related classes.
+
+- Human validation: group opened the decompiled APK and confirmed the real package structure and authentication classes manually.
+
+ 
+
+Prompt Theme B: Security-focused code search
+
+- Example request summary: “How do we look for randomness or crypto misuse in a decompiled Android app?”
+
+- Useful output: suggested searching for random, token, session, code, key, seed, and storage-related values.
+
+- Human validation: group manually located the relevant code path and confirmed the actual API was `java.util.Random`.
+
+ 
+
+Prompt Theme C: Threat model framing
+
+- Example request summary: “How should we describe the attacker and protected assets for a local-only Android login app?”
+
+- Useful output: suggested describing assets, local attacker capabilities, and the relationship between local storage and session state.
+
+- Human validation: attacker capabilities were only kept if they were consistent with the actual app design and local trust model.
+
+ 
+
+Prompt Theme D: Mitigation and explanation quality
+
+- Example request summary: “Why is `java.util.Random` a bad choice for session tokens and how should we explain the fix?”
+
+- Useful output: explained the difference between general-purpose pseudo-randomness and cryptographically strong randomness, and recommended `SecureRandom`.
+
+- Human validation: group checked that the mitigation directly addressed the identified token-generation issue rather than unrelated app weaknesses.
+
+ 
+
+Prompt Theme E: Rubric-driven rehearsal
+
+- Example request summary: “Ask us rubric-based follow-up questions that a tutor might ask in the tutorial.”
+
+- Useful output: generated likely Q&A prompts about system model quality, attacker realism, code evidence, exploitability, and mitigation rationale.
+
+- Human validation: answers were revised to include specific evidence from the decompiled APK rather than generic security wording.
+
+ 
+
+Human Validation Performed
+
+ 
+
+- Manually confirmed the app flow through the decompiled classes for registration, login, and profile access.
+
+- Manually checked that the session token is generated in the `Login` class rather than inferred by AI alone.
+
+- Manually confirmed that `java.util.Random` is the actual generator used for the session token.
+
+- Manually checked that the token is stored locally in `SharedPreferences`.
+
+- Manually compared the final vulnerability choice against the assignment specification and rubric to keep the presentation in scope.
+
+- Manually revised report and slide wording to remove or reduce unsupported or out-of-scope claims.
+
+- Manually checked that the proposed fix, `SecureRandom`, directly addresses the identified randomness weakness.
+
+ 
+
+Key Improvements Made Because of AI
+
+ 
+
+- Faster selection of decompilation and inspection workflow for an unfamiliar Android APK.
+
+- More structured search strategy for randomness-related values in the codebase.
+
+- Clearer system and threat model organisation for the written report and slides.
+
+- Better presentation structure for a 5-minute time limit.
+
+- Better preparation for tutorial Q&A through rubric-driven rehearsal.
+
+ 
+
+Limitations and Corrections
+
+ 
+
+- AI outputs were not treated as authoritative by default.
+
+- Some AI-assisted drafting initially described broader issues than were useful for Assignment 1.
+
+- The group corrected this by re-checking the assignment scope and focusing the final presentation on the randomness vulnerability in session token generation.
+
+- Any final technical claim was only kept after manual checking against the decompiled APK or official documentation.
+
+ 
+
+References Used
+
+ 
+
+- Oracle Java documentation for `SecureRandom`
+
+- Oracle Java documentation for `Random`
+
+- Android documentation for `SharedPreferences`
+
+- jadx documentation / APK decompilation tooling references
+
+- INFO5995 Assignment 1 specification and rubric
+
+ 
+
+ 
+
+Final Note
+
+ 
+
+AI was used as a workflow and drafting assistant, not as a replacement for code inspection or technical validation. The final findings, presentation focus, and mitigation were all manually checked by the group against the provided APK and the assignment requirements.
